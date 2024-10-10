@@ -1,5 +1,7 @@
-![image](https://github.com/user-attachments/assets/e8eb08d7-fcf5-474e-a5e5-26a86f788859)
-A very simple and interactive website to create your own interactive mind maps, graphs & notes. <br>
+![image](https://github.com/user-attachments/assets/e8eb08d7-fcf5-474e-a5e5-26a86f788859) <br>
+
+# Currently live @ [MindBoard](https://coffeescrpt.github.io/MindBoard/)
+A very simple and interactive website to create your very own mind maps, graphs & notes. <br>
 I had an assigment forcing me to create a mind map and I had zero clue what it is and how to make one so I turned this into an entire simple HTML that helps me make it pretty, lol. <br>
 
 Publishing it so perhaps you too may use it for your endearing window graphs. <br>

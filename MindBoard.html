@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindBoard 🩶</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            background: url('img/1638152.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: 'Comfortaa', sans-serif;
+            overflow: hidden;
+        }
+
+        * {
+            font-weight: 400;
+            font-family: 'Comfortaa', sans-serif;
+        }
+        [contenteditable="true"]:focus {
+             outline: none;
+             box-shadow: none;
+             border: none;
+        }
+
+
+        #drawingCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1;
+            cursor: crosshair;
+        }
+
+        .draggable {
+            width: 300px;
+            max-height: 500px;
+            min-height: 100px;
+            background: rgba(14, 14, 14, 0.2);
+            backdrop-filter: blur(20px);
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.5);
+            margin: 10px;
+            padding: 20px;
+            cursor: grab;
+            overflow-y: auto;
+            color: #fff;
+            position: absolute;
+            z-index: 10;
+            transition: box-shadow 0.3s ease, border-radius 0.3s ease;
+            border-radius: 15px;
+        }
+
+        .draggable:hover {
+            box-shadow: 0px 6px 25px rgba(0, 0, 0, 0.7);
+        }
+        .draggable h2 {
+            margin: 0 0 10px;
+            font-size: 1.5em;
+        }
+
+        .draggable p {
+            font-size: 1em;
+            line-height: 1.5em;
+        }
+
+        .delete-btn {
+            display: none;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+
+        .draggable:hover .delete-btn {
+            display: block;
+        }
+
+        #menu {
+            position: absolute;
+            top: -93px;
+            right: 0;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.534);
+            backdrop-filter: blur(7px);
+            border-radius: 0 0  0 10px ;
+            padding: 10px;
+            transition: top 0.3s ease;
+            z-index: 20;
+        }
+
+        #menu:hover {
+            top: 0;
+        }
+
+        .menu-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all ease-in-out 0.8s;
+        }
+
+        .menu-btn:hover::after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: all ease-in-out 0.8s;
+            width: 0;
+            left: 50%;
+        }
+
+        .menu-btn:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        .color-picker {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .color-picker input {
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        button {
+            border: none;
+            color: #fff;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.8s ease;
+        }
+
+        button:hover {
+            text-shadow: 0 0 3px #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="drawingCanvas"></canvas>
+
+    <div class="draggable" style="top: 50px; left: 50px;">
+        <h2 contenteditable="true">CHASING KNOWLEDGE</h2>
+        <p contenteditable="true">Adapting knowledge as a result of effort and experience.</p>
+        <span class="delete-btn">🗑️</span>
+    </div>
+
+    <div id="menu">
+        <button class="menu-btn" id="changeBgBtn">Background</button>
+        <input type="file" id="bgInput" style="display: none;">
+        <button class="menu-btn" id="addDivBtn">Add Window</button>
+        <button class="menu-btn" id="clearCanvasBtn">Clear Pen Canvas</button>
+
+        <div class="color-picker">
+            <label for="penColor">Pen Color:</label>
+            <input type="color" id="penColor" value="#FFFFFF">
+        </div>
+    </div>
+
+    <script>
+        const draggables = document.querySelectorAll('.draggable');
+        let isDragging = false;
+        let currentDrag = null;
+        let offsetX, offsetY;
+
+        draggables.forEach(dragItem => {
+            dragItem.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                currentDrag = dragItem;
+                offsetX = e.clientX - currentDrag.offsetLeft;
+                offsetY = e.clientY - currentDrag.offsetTop;
+
+                currentDrag.style.cursor = 'grabbing';
+                currentDrag.style.zIndex = 20;
+            });
+
+            const deleteBtn = dragItem.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', () => {
+                dragItem.remove();
+            });
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging && currentDrag) {
+                currentDrag.style.left = `${e.clientX - offsetX}px`;
+                currentDrag.style.top = `${e.clientY - offsetY}px`;
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging && currentDrag) {
+                isDragging = false;
+                currentDrag.style.cursor = 'grab';
+                currentDrag.style.zIndex = 10;
+                currentDrag = null;
+            }
+        });
+
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        canvas.addEventListener('mousedown', function(e) {
+            drawing = true;
+            ctx.beginPath();
+            ctx.moveTo(e.clientX, e.clientY);
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (drawing) {
+                ctx.lineTo(e.clientX, e.clientY);
+                ctx.strokeStyle = document.getElementById('penColor').value;
+                ctx.lineWidth = 5;
+                ctx.stroke();
+            }
+        });
+
+        canvas.addEventListener('mouseup', function() {
+            drawing = false;
+            ctx.closePath();
+        });
+
+        document.getElementById('clearCanvasBtn').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        const bgInput = document.getElementById('bgInput');
+        document.getElementById('changeBgBtn').addEventListener('click', function() {
+            bgInput.click();
+        });
+
+        bgInput.addEventListener('change', function() {
+            const file = bgInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.body.style.backgroundImage = `url('${e.target.result}')`;
+            }
+            if (file) {
+                reader.readAsDataURL(file);
+            }
+        });
+
+        document.getElementById('addDivBtn').addEventListener('click', function() {
+            const newDiv = document.createElement('div');
+            newDiv.classList.add('draggable');
+            newDiv.style.left = '100px';
+            newDiv.style.top = '100px';
+            newDiv.innerHTML = `
+                <h2 contenteditable="true">New Window</h2>
+                <p contenteditable="true">Your content here...</p>
+                <span class="delete-btn">🗑️</span>
+            `;
+            document.body.appendChild(newDiv);
+            attachDragEvent(newDiv);
+        });
+
+        function attachDragEvent(dragItem) {
+            dragItem.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                currentDrag = dragItem;
+                offsetX = e.clientX - currentDrag.offsetLeft;
+                offsetY = e.clientY - currentDrag.offsetTop;
+                currentDrag.style.cursor = 'grabbing';
+                currentDrag.style.zIndex = 20;
+            });
+
+            const deleteBtn = dragItem.querySelector('.delete-btn');
+            deleteBtn.addEventListener('click', () => {
+                dragItem.remove();
+            });
+        }
+    </script>
+</body>
+</html>
